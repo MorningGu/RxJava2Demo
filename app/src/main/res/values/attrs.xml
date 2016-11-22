@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="GalleryDirsContainer">
+        <attr name="placeViewBackgroundColor" format="color|reference"/>
+        <attr name="placeViewHeight" format="dimension|reference"/>
+        <attr name="animationDuration" format="integer"/>
+    </declare-styleable>
+</resources>

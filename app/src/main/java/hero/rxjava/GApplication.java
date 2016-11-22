@@ -4,7 +4,15 @@ import android.app.Application;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.squareup.leakcanary.LeakCanary;
+
+import java.io.InputStream;
+
 import hero.rxjava.utils.LogUtils;
+import okhttp3.OkHttpClient;
 
 
 /**
@@ -16,16 +24,16 @@ public class GApplication extends Application {
 
     private boolean isDebug = false;
 
-    private Boolean hasCamera = null;
-
-
     public void onCreate() {
         super.onCreate();
         init();
     }
     private void init(){
         sInstance = this;
+        initLeakCanary();
         initDebug();
+        initGlide();
+
         //// FIXME: 2016/8/29 0029  当网络请求出错时会崩溃，之前测试404必崩 后来好了，原因不明
 //        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
 //            @Override
@@ -34,7 +42,18 @@ public class GApplication extends Application {
 //            }
 //        });
     }
-
+    private void initLeakCanary(){
+        //内存分析工具的初始化 针对1.5版本
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            // This process is dedicated to LeakCanary for heap analysis.
+            // You should not init your app in this process.
+            return;
+        }
+        LeakCanary.install(this);
+    }
+    private void initGlide(){
+        Glide.get(this).register(GlideUrl.class,InputStream.class,new OkHttpUrlLoader.Factory(new OkHttpClient()));
+    }
     /**
      * 初始化是否是debug
      */

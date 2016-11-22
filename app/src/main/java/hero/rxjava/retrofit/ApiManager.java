@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import hero.rxjava.GApplication;
 import hero.rxjava.utils.LogUtils;
 import io.reactivex.Flowable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.LongConsumer;
@@ -72,7 +73,7 @@ public enum ApiManager {
      */
     public ResourceSubscriber startObservable(Flowable observable, ResourceSubscriber subscriber) {
        return (ResourceSubscriber)observable.subscribeOn(Schedulers.io())
-               .observeOn(Schedulers.io())
+               .observeOn(AndroidSchedulers.mainThread())
                .doOnLifecycle(new Consumer<Subscription>() {
                    @Override
                    public void accept(Subscription subscription) throws Exception {

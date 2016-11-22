@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="hero.rxjava">
 
+    <!-- 允许应用程序联网，以便向我们的服务器端发送数据。 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:name=".GApplication"
         android:allowBackup="true"
@@ -9,17 +14,24 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <!-- 是否是调试 -->
         <meta-data
             android:name="IS_DEBUG"
             android:value="${IS_DEBUG_VALUE}" />
-        <activity android:name=".ui.activity.MainActivity">
+        <meta-data
+            android:name="hero.rxjava.utils.GlideModelConfig"
+            android:value="GlideModule" />
+
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.gallery.GalleryActivity" />
+        <activity android:name=".ui.gallery.GalleryPreviewActivity" />
     </application>
 
 </manifest>
