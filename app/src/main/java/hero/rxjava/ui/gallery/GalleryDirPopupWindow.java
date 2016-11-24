@@ -66,7 +66,7 @@ public class GalleryDirPopupWindow extends PopupWindow{
 		// 加上它之后，setOutsideTouchable（）才会生效;并且PopupWindow才会对手机的返回按钮有响应
 		this.setBackgroundDrawable(new BitmapDrawable());
 		// 设置popWindow的显示和消失动画
-//		this.setAnimationStyle(R.style.pop_anim_style);
+		//this.setAnimationStyle(R.style.pop_anim_style);
 		this.setOutsideTouchable(true);
 		initViews();
 	}
@@ -107,9 +107,6 @@ public class GalleryDirPopupWindow extends PopupWindow{
 
 	@Override
 	public void showAsDropDown(View anchor,int x,int y,int gravity) {
-		//先设置成不可见的，不然会有一个默认的动画，影响效果
-		//通过设置现在的AnimationStyle也能解决问题
-//		mConvertView.setVisibility(View.GONE);
 		super.showAsDropDown(anchor,x,y,gravity);
 		startShowAnimator();
 		initShowAnimation();
@@ -117,7 +114,6 @@ public class GalleryDirPopupWindow extends PopupWindow{
 
 	@Override
 	public void showAtLocation(View parent, int gravity, int x, int y) {
-//		mConvertView.setVisibility(View.GONE);
 		super.showAtLocation(parent, gravity, x, y);
 		startShowAnimator();
 	}
@@ -159,7 +155,6 @@ public class GalleryDirPopupWindow extends PopupWindow{
 			});
 			measureView(lv_dirs);
 			//ListView的出场动画和退场动画
-			lv_dirs.getMinimumHeight()
 			mListViewShowAnimation = ObjectAnimator.ofFloat(lv_dirs, "translationY", lv_dirs.getHeight(), 0f);
 			mListViewShowAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
 			mListViewDismissAnimation =ObjectAnimator.ofFloat(lv_dirs, "translationY", 0f, lv_dirs.getHeight());
@@ -213,7 +208,6 @@ public class GalleryDirPopupWindow extends PopupWindow{
 	 * 退场动画
 	 */
 	private void startDismissAnimator(){
-		//如果
 		if(animatorSet!=null && animatorSet.isRunning()){
 			animatorSet.cancel();
 		}
