@@ -1,17 +1,10 @@
 package hero.rxjava.mvp.presenter;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import hero.rxjava.Config;
 import hero.rxjava.mvp.iview.IGalleryActivityView;
-import hero.rxjava.mvp.model.gallery.Photo;
-import hero.rxjava.mvp.model.gallery.PhotoDir;
+import hero.rxjava.mvp.model.factory.PhotoFactory;
 import hero.rxjava.retrofit.ApiManager;
-import hero.rxjava.utils.PhotoHelper;
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
-import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.subscribers.ResourceSubscriber;
 
 /**
@@ -23,66 +16,21 @@ import io.reactivex.subscribers.ResourceSubscriber;
  */
 
 public class GalleryActivityPresenter extends BasePresenter<IGalleryActivityView> {
-    private static Object monitor = new Object();
-    private static GalleryActivityPresenter sInstance;
-    //所有图片 用于在GalleryActivity中显示，
-    // 只要显示所有图片就是使用这个list，其他使用纯数据的时候都用mPhotoDirs中的list
-    private List<Photo> mPhotos;
-    //所有文件夹
-    private List<PhotoDir> mPhotoDirs;
-    //选中的图片
-    private List<Photo> mSelectedPhotos;
 
-    /**
-     * 这个presenter比较特殊，两个activity同时使用里面的数据
-     */
-    private GalleryActivityPresenter(){
-        mPhotos = new ArrayList<>();
-        mPhotoDirs = new ArrayList<>();
-        mSelectedPhotos = new ArrayList<>();
-    }
-    public static GalleryActivityPresenter getInstance(){
-        if(sInstance==null){
-            synchronized (monitor){
-                if(sInstance==null){
-                    sInstance = new GalleryActivityPresenter();
-                }
-            }
-        }
-        return sInstance;
-    }
+    PhotoFactory factory = PhotoFactory.getInstance();
+
     /**
      * 扫描图库中的图片
      */
-    public void startScan(final boolean hasCamera){
-        Flowable<Integer> flowable = Flowable.create(new FlowableOnSubscribe<Integer>() {
-            @Override
-            public void subscribe(FlowableEmitter<Integer> e) throws Exception {
-                //获取数据
-                PhotoHelper photoHelper = new PhotoHelper();
-                photoHelper.getAllPhotos(mPhotos);
-                photoHelper.getAllPhotoDirs(mPhotos,mPhotoDirs);
-                //加工数据
-                if(hasCamera) {
-                    //插入照相机
-                    Photo photo = new Photo();
-                    photo.isCamera(true);
-                    List<Photo> photos = new ArrayList<Photo>();
-                    photos.add(photo);
-                    photos.addAll(mPhotos);
-                    mPhotos = photos;
-                }
-                e.onNext(1);
-                e.onComplete();
-            }
-        }, BackpressureStrategy.DROP); //指定背压处理策略
+    public void startScan(boolean hasCamera){
+        Flowable flowable = factory.getScanPhotoFlowable(hasCamera);
         ResourceSubscriber resultSubscriber = new ResourceSubscriber<Integer>() {
             @Override
             public void onNext(Integer integer) {
                 IGalleryActivityView view = getView();
                 if(view==null)
                     return;
-                view.updateGridView(mPhotos,mSelectedPhotos,mPhotoDirs);
+                view.bindData(factory.getPhotos(),factory.getSelectedPhotos(),factory.getPhotoDirs());
             }
 
             @Override
@@ -97,23 +45,16 @@ public class GalleryActivityPresenter extends BasePresenter<IGalleryActivityView
         };
         addSubscription(ApiManager.INSTANCE.startObservable(flowable,resultSubscriber));
     }
-    //销毁presenter  在数据使用完毕后销毁数据
-    public static void destroy(){
-        if(sInstance!=null){
-            sInstance.mPhotoDirs.clear();
-            sInstance.mPhotos.clear();
-            sInstance.mSelectedPhotos.clear();
-            sInstance = null;
+    public boolean isSelectedPhoto(){
+        if(factory.getSelectedPhotos().size()==0){
+            return false;
         }
+        return true;
     }
-
-    public List<PhotoDir> getPhotoDirs(){
-        return mPhotoDirs;
-    }
-    public List<Photo> getSelectedPhotos(){
-        return mSelectedPhotos;
-    }
-    public List<Photo> getPhotos(){
-        return mPhotos;
+    public void updateState(){
+        IGalleryActivityView view = getView();
+        if(view!=null){
+            view.updateState(factory.getSelectedPhotos().size(), Config.GALLERY_MAX);
+        }
     }
 }

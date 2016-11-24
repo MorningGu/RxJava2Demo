@@ -5,5 +5,5 @@ package hero.rxjava.mvp.iview;
  */
 
 public interface IMainActivityView  extends IBaseView {
-   void updateUI();
+   void updateUI(String text);
 }

@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
@@ -20,8 +21,8 @@ import java.util.List;
 import hero.rxjava.Config;
 import hero.rxjava.R;
 import hero.rxjava.mvp.iview.IGalleryActivityView;
-import hero.rxjava.mvp.model.gallery.Photo;
-import hero.rxjava.mvp.model.gallery.PhotoDir;
+import hero.rxjava.mvp.model.Photo;
+import hero.rxjava.mvp.model.PhotoDir;
 import hero.rxjava.mvp.presenter.GalleryActivityPresenter;
 import hero.rxjava.ui.base.BaseActivity;
 import hero.rxjava.ui.gallery.popupwindow.GalleryDirsAdapter;
@@ -46,6 +47,7 @@ public class GalleryActivity extends BaseActivity<IGalleryActivityView,GalleryAc
     private LinearLayout layout_show_big;
     private GalleryDirPopupWindow dirPopupWindow;
     private GalleryDirsContainer layout_dirs;
+    Toolbar toolbar;
 
     private GalleryDirsAdapter dirsAdapter;
     private GalleryAdapter mAdapter;
@@ -61,6 +63,7 @@ public class GalleryActivity extends BaseActivity<IGalleryActivityView,GalleryAc
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
+        initActionBar();
         hasCamera = isSupportCamera();
         initView();
         mPresenter.startScan(true);
@@ -68,9 +71,12 @@ public class GalleryActivity extends BaseActivity<IGalleryActivityView,GalleryAc
 
     @Override
     protected GalleryActivityPresenter createPresenter() {
-        return GalleryActivityPresenter.getInstance();
+        return new GalleryActivityPresenter();
     }
-
+    private void initActionBar(){
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+    }
     private void initView(){
         gv_photos = (GridView)findViewById(R.id.gv_photos);
         tv_dir_choose = (TextView) findViewById(R.id.tv_dir_choose);
@@ -92,7 +98,7 @@ public class GalleryActivity extends BaseActivity<IGalleryActivityView,GalleryAc
         layout_show_big.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mPresenter.getSelectedPhotos().size()==0){
+                if(!mPresenter.isSelectedPhoto()){
                     ToastUtils.showToast("请先选中图片");
                     return;
                 }
@@ -108,22 +114,14 @@ public class GalleryActivity extends BaseActivity<IGalleryActivityView,GalleryAc
         });
     }
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        if(!mPresenter.isViewAttached()){
-            //从Preview返回时需要对presenter重新attach
-            mPresenter.attachView(this);
-        }
-    }
 
     @Override
-    public void updateGridView(List<Photo> photos, List<Photo> selectedPhotos,List<PhotoDir> photoDirs) {
+    public void bindData(List<Photo> photos, List<Photo> selectedPhotos,List<PhotoDir> photoDirs) {
         if(mAdapter==null){
             mAdapter = new GalleryAdapter(this, selectedPhotos, new GalleryAdapter.OnSelectListener() {
                 @Override
                 public void onSelectPhoto(List<Photo> photos) {
-                    updateSelectedNum(photos.size(),Config.GALLERY_MAX);
+                    updateState(photos.size(),Config.GALLERY_MAX);
                 }
 
                 @Override
@@ -147,13 +145,15 @@ public class GalleryActivity extends BaseActivity<IGalleryActivityView,GalleryAc
             //构造方法参数太多，拿到外面设
             mAdapter.calculateItemHeight(mScreenWidth);
             gv_photos.setAdapter(mAdapter);
-            initDirsPopupWindow(photoDirs);
+            //设置的高度是屏幕高度减去状态栏高度，减去下方自定义的bottombar的高度，再减去toolbar的高度，实际跟gridview的高度一样
+            // 之所以要设置高度而不用match_parent,是因为安卓7.0的window的属性有变化，
+            // 设置为match_parent之后直接全屏，showasdrapdown的位移失效，所以必须设置精确的高度
+//            dirPopupWindow = new GalleryDirPopupWindow(this,photoDirs,mScreenHeight-PixelUtil.dp2px(48)-mStatusBarHeight-toolbar.getHeight());
+            dirPopupWindow = new GalleryDirPopupWindow(this,photoDirs,gv_photos.getHeight());
             initDirsView(photoDirs);
         }
         mAdapter.notifyDataSetChanged();
-    }
-    private void updateSelectedNum(int count,int max){
-        tv_count.setText(getString(R.string.gallery_count, count, max));
+        updateState(selectedPhotos.size(),Config.GALLERY_MAX);
     }
 
     /**
@@ -210,23 +210,32 @@ public class GalleryActivity extends BaseActivity<IGalleryActivityView,GalleryAc
         }else{
             //数据可能有变动，更新ui
             mAdapter.notifyDataSetChanged();
-            updateSelectedNum(mPresenter.getSelectedPhotos().size(),Config.GALLERY_MAX);
+            mPresenter.updateState();
         }
     }
+
+    /**
+     * 初始化自定义弹窗
+     * @param photoDirs
+     */
     private void initDirsView(List<PhotoDir> photoDirs){
         dirsAdapter = new GalleryDirsAdapter(this,photoDirs);
         layout_dirs.setListAdapter(dirsAdapter);
     }
 
-    private void initDirsPopupWindow(List<PhotoDir> photoDirs){
-        dirPopupWindow = new GalleryDirPopupWindow(this,photoDirs,true);
-    }
+    /**
+     * 弹出popupwindow
+     */
     private void showDirsPopupWindow(){
         if(dirPopupWindow==null){
             return;
         }
         dirPopupWindow.updatePopWindow();
-        dirPopupWindow.showAsDropDown(findViewById(R.id.layout_bottom),0,-(mScreenHeight+PixelUtil.dp2px(48)),Gravity.BOTTOM);
+        //在android7.0的手机上，弹出的效果不是微信的效果，
+        // 位移不起作用，因为在7.0中popupwindow的宽和高如果过大，
+        // 弹出的PopupWindow会覆盖当前的视窗而覆盖整个手机屏幕
+//        dirPopupWindow.showAsDropDown(findViewById(R.id.layout_bottom),0,-(dirPopupWindow.getHeight()+PixelUtil.dp2px(48)));
+        dirPopupWindow.showAtLocation(gv_photos,Gravity.NO_GRAVITY,0,toolbar.getHeight()+mStatusBarHeight);//toolbar的高度和通知栏高度
     }
     /**
      * 是否支持相机
@@ -243,19 +252,30 @@ public class GalleryActivity extends BaseActivity<IGalleryActivityView,GalleryAc
             return true;
         }
     }
-
+    @Override
+    public void updateState(int count, int max) {
+        if(count==0){
+            tv_count.setVisibility(View.GONE);
+        }else{
+            tv_count.setText(getString(R.string.gallery_count, count));
+            tv_count.setVisibility(View.VISIBLE);
+        }
+    }
     /**
      * 处理数据
      */
-    private void progress(){
-        if(needProgress && (!TextUtils.isEmpty(cameraPath) || mPresenter.getSelectedPhotos().size()==1)){
-            // TODO: 2016/11/17 0017 进入下一页面，剪辑修图
-        }else{
-            submit();
-        }
+    @Override
+    public void progress() {
+//        if(needProgress && (!TextUtils.isEmpty(cameraPath) || size==1)){
+//            // TODO: 2016/11/17 0017 进入下一页面，剪辑修图
+//        }else{
+//            submit();
+//        }
     }
-    private void submit(){
+
+    @Override
+    public void submit() {
         // TODO: 2016/11/17 0017  提交选中数据 等待数据提交完毕后销毁presenter
-        mPresenter.getSelectedPhotos();
     }
+
 }

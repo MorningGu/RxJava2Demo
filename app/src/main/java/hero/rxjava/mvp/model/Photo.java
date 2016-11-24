@@ -1,4 +1,4 @@
-package hero.rxjava.mvp.model.gallery;
+package hero.rxjava.mvp.model;
 
 /**
  * Created by hero on 2016/11/10 0010.

@@ -4,72 +4,82 @@
     android:layout_height="match_parent"
     android:background="#252525"
     >
+    <android.support.v7.widget.Toolbar
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:contentInsetLeft="0dp"
+        app:contentInsetStart="0dp"
+        >
+        <RelativeLayout
+            android:id="@+id/rl_title"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:background="#e6252525"
+            >
+            <ImageView
+                android:id="@+id/iv_back"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:src="@drawable/selector_titlebar_back"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                />
+            <TextView
+                android:id="@+id/tv_index"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:layout_toRightOf="@id/iv_back"
+                android:layout_marginLeft="5dp"
+                android:text="@string/gallery_index"
+                android:textColor="#ffffff"
+                android:textSize="16dp"
+                />
+            <LinearLayout
+                android:id="@+id/ll_ok"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginRight="8dp"
+                android:padding="8dp"
+                android:gravity="center"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:background="@android:color/holo_green_dark"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:duplicateParentState="true"
+                    android:gravity="center"
+                    android:text="确定"
+                    android:textColor="#ffffff"
+                    android:textSize="13dp"
+                    />
+                <TextView
+                    android:id="@+id/tv_select_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="#ffffff"
+                    android:textSize="13dp"
+                    android:text="(0/9)"
+                    />
+            </LinearLayout>
+        </RelativeLayout>
+    </android.support.v7.widget.Toolbar>
     <hero.rxjava.ui.gallery.HackyViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
         android:layout_gravity="center"
         android:background="#00000000" />
-    <RelativeLayout
-        android:id="@+id/rl_title"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal"
-        android:background="#e6252525"
-        >
-        <ImageView
-            android:id="@+id/iv_back"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
-            android:src="@drawable/selector_titlebar_back"
-            android:paddingLeft="12dp"
-            android:paddingRight="20dp"
-            />
-        <TextView
-            android:id="@+id/tv_count_all"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:layout_toRightOf="@id/iv_back"
-            android:layout_marginLeft="5dp"
-            android:text="4/555"
-            android:textColor="#ffffff"
-            android:textSize="16dp"
-            />
-        <LinearLayout
-            android:id="@+id/ll_ok"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginRight="8dp"
-            android:padding="8dp"
-            android:gravity="center"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:background="@android:color/holo_blue_light"
-            >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:duplicateParentState="true"
-                android:gravity="center"
-                android:text="确定"
-                android:textColor="#ffffff"
-                android:textSize="15dp"
-                />
-            <TextView
-                android:id="@+id/tv_select_index"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textColor="#ffffff"
-                android:textSize="15dp"
-                android:text="(0/9)"
-                />
-        </LinearLayout>
-    </RelativeLayout>
     <RelativeLayout
         android:id="@+id/rl_preview_bottom"
         android:layout_width="match_parent"

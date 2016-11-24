@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 
 import hero.rxjava.R;
-import hero.rxjava.mvp.model.gallery.PhotoDir;
+import hero.rxjava.mvp.model.PhotoDir;
 
 /**
  * Created by hero on 2016/11/18 0018.

@@ -14,7 +14,7 @@ import java.util.List;
 
 import hero.rxjava.Config;
 import hero.rxjava.R;
-import hero.rxjava.mvp.model.gallery.Photo;
+import hero.rxjava.mvp.model.Photo;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -67,5 +67,6 @@ public class PhotoViewPagerAdapter extends PagerAdapter {
         public boolean isViewFromObject(View view, Object object) {
             return view == object;
         }
+
 
 }

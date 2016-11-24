@@ -22,8 +22,8 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 
 import hero.rxjava.R;
-import hero.rxjava.mvp.model.gallery.PhotoDir;
-import hero.rxjava.mvp.presenter.GalleryActivityPresenter;
+import hero.rxjava.mvp.model.PhotoDir;
+import hero.rxjava.mvp.model.factory.PhotoFactory;
 
 public class GalleryDirPopupWindow extends PopupWindow{
 	private View mConvertView;
@@ -42,27 +42,33 @@ public class GalleryDirPopupWindow extends PopupWindow{
 	boolean isDismissing = false;
 
 	private Context mContext;
-	public GalleryDirPopupWindow(Context context,List<PhotoDir> photoDirs, boolean mHasCamera) {
+	private int mDuration = 300;
+
+	/**
+	 *
+	 * @param context
+	 * @param photoDirs
+	 * @param height 	之所以要设置高度而不用match_parent,是因为安卓7.0的window的属性有变化，
+	 *             设置为match_parent之后直接全屏，showasdrapdown的位移失效，所以必须设置精确的高度
+     */
+	public GalleryDirPopupWindow(Context context,List<PhotoDir> photoDirs,int height) {
 		this.mPhotoDirs = photoDirs;
-		this.mConvertView = LayoutInflater.from(context).inflate(R.layout.gallery_list_dir, null);;
+		this.mConvertView = LayoutInflater.from(context).inflate(R.layout.gallery_list_dir, null);
 		this.mContext = context;
 		// 设置SelectPicPopupWindow的View
 		this.setContentView(mConvertView);
 		// 设置SelectPicPopupWindow弹出窗体的宽
 		this.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
 		// 设置SelectPicPopupWindow弹出窗体的高
-		this.setHeight(ViewGroup.LayoutParams.MATCH_PARENT);
+		this.setHeight(height);
 		// 设置SelectPicPopupWindow弹出窗体可点击
 		this.setFocusable(true);
-//		// 实例化一个ColorDrawable颜色为半透明
-//		ColorDrawable dw = new ColorDrawable(0x60000000);
-		// 设置SelectPicPopupWindow弹出窗体的背景
+		// 加上它之后，setOutsideTouchable（）才会生效;并且PopupWindow才会对手机的返回按钮有响应
 		this.setBackgroundDrawable(new BitmapDrawable());
 		// 设置popWindow的显示和消失动画
-		this.setAnimationStyle(R.style.pop_anim_style);
+//		this.setAnimationStyle(R.style.pop_anim_style);
 		this.setOutsideTouchable(true);
 		initViews();
-		initShowAnimation();
 	}
 
 	public void initViews() {
@@ -106,6 +112,7 @@ public class GalleryDirPopupWindow extends PopupWindow{
 //		mConvertView.setVisibility(View.GONE);
 		super.showAsDropDown(anchor,x,y,gravity);
 		startShowAnimator();
+		initShowAnimation();
 	}
 
 	@Override
@@ -123,10 +130,8 @@ public class GalleryDirPopupWindow extends PopupWindow{
 			//占位控件的出场动画和退场动画
 			mPlaceViewShowAnimation = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
 			mPlaceViewShowAnimation.setInterpolator(new AccelerateInterpolator  ());
-			mPlaceViewShowAnimation.setDuration(300);
 			mPlaceViewDismissAnimation = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
 			mPlaceViewDismissAnimation.setInterpolator(new AccelerateInterpolator  ());
-			mPlaceViewDismissAnimation.setDuration(100);
 			mPlaceViewDismissAnimation.addListener(new Animator.AnimatorListener() {
 				@Override
 				public void onAnimationStart(Animator animation) {
@@ -136,26 +141,15 @@ public class GalleryDirPopupWindow extends PopupWindow{
 				@Override
 				public void onAnimationEnd(Animator animation) {
 					mConvertView.setVisibility(View.GONE);
-					//需要延时，不然效果不好
-					mConvertView.postDelayed(new Runnable() {
-						@Override
-						public void run() {
-							GalleryDirPopupWindow.super.dismiss();
-							isDismissing = false;
-						}
-					},100);
+					GalleryDirPopupWindow.super.dismiss();
+					isDismissing = false;
 				}
 
 				@Override
 				public void onAnimationCancel(Animator animation) {
 					mConvertView.setVisibility(View.GONE);
-					mConvertView.postDelayed(new Runnable() {
-						@Override
-						public void run() {
-							GalleryDirPopupWindow.super.dismiss();
-							isDismissing = false;
-						}
-					},100);
+					GalleryDirPopupWindow.super.dismiss();
+					isDismissing = false;
 				}
 
 				@Override
@@ -165,12 +159,11 @@ public class GalleryDirPopupWindow extends PopupWindow{
 			});
 			measureView(lv_dirs);
 			//ListView的出场动画和退场动画
-			mListViewShowAnimation = ObjectAnimator.ofFloat(lv_dirs, "translationY", lv_dirs.getMeasuredHeight(), 0f);
-			mListViewShowAnimation.setDuration(200);
-			mListViewShowAnimation.setInterpolator(new AccelerateInterpolator());
-			mListViewDismissAnimation =ObjectAnimator.ofFloat(lv_dirs, "translationY", 0f, lv_dirs.getMeasuredHeight());
+			lv_dirs.getMinimumHeight()
+			mListViewShowAnimation = ObjectAnimator.ofFloat(lv_dirs, "translationY", lv_dirs.getHeight(), 0f);
+			mListViewShowAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
+			mListViewDismissAnimation =ObjectAnimator.ofFloat(lv_dirs, "translationY", 0f, lv_dirs.getHeight());
 			mListViewDismissAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
-			mListViewDismissAnimation.setDuration(300);
 		}
 	}
 	/**
@@ -200,11 +193,10 @@ public class GalleryDirPopupWindow extends PopupWindow{
 			// xml文件中使用wrap_content设定该view高度，例如android:layout_height="wrap_content"
 			height = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
 		}
-
 		v.measure(width, height);
 	}
 	/**
-	 * 启动动画，设置Visibility为VISIABLE
+	 * 入场动画，设置Visibility为VISIABLE
 	 */
 	private void startShowAnimator(){
 		if(animatorSet!=null && animatorSet.isRunning()){
@@ -212,6 +204,7 @@ public class GalleryDirPopupWindow extends PopupWindow{
 		}
 		animatorSet = new AnimatorSet();
 		animatorSet.play(mListViewShowAnimation).with(mPlaceViewShowAnimation);
+		animatorSet.setDuration(mDuration);
 		animatorSet.start();
 		mConvertView.setVisibility(View.VISIBLE);
 	}
@@ -226,6 +219,7 @@ public class GalleryDirPopupWindow extends PopupWindow{
 		}
 		animatorSet = new AnimatorSet();
 		animatorSet.play(mListViewDismissAnimation).with(mPlaceViewDismissAnimation);
+		animatorSet.setDuration(mDuration);
 		animatorSet.start();
 	}
 	class GalleryDirsAdapter extends BaseAdapter {
@@ -269,7 +263,7 @@ public class GalleryDirPopupWindow extends PopupWindow{
 				@Override
 				public void onClick(View v) {
 					if(position==0){
-						((GalleryActivity)mContext).resetPhotos(GalleryActivityPresenter.getInstance().getPhotos(),position);
+						((GalleryActivity)mContext).resetPhotos(PhotoFactory.getInstance().getPhotos(),position);
 					}else{
 						((GalleryActivity)mContext).resetPhotos(item.getPhotos(),position);
 					}
@@ -288,7 +282,6 @@ public class GalleryDirPopupWindow extends PopupWindow{
 
 		private void resetHolder(ImgViewHolder holder) {
 			holder.tv_dir_name.setText("");
-			holder.iv_dir_image.setImageResource(R.mipmap.ic_launcher);
 			holder.tv_dir_count.setText("");
 		}
 	}

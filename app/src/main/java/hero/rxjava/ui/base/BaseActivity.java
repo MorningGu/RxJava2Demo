@@ -20,6 +20,7 @@ import hero.rxjava.utils.LogUtils;
 public abstract class BaseActivity<V,T extends BasePresenter<V>> extends AppCompatActivity implements IBaseView{
     public int mScreenWidth;
     public int mScreenHeight;
+    public int mStatusBarHeight;
     protected T mPresenter;
     private WeakReference<Activity> mWeakReference;
     @Override
@@ -30,6 +31,7 @@ public abstract class BaseActivity<V,T extends BasePresenter<V>> extends AppComp
         initPresenter();
         initScreenData();
     }
+
     private void initPresenter(){
         //初始化Presenter
         mPresenter = createPresenter();
@@ -55,6 +57,12 @@ public abstract class BaseActivity<V,T extends BasePresenter<V>> extends AppComp
         getWindowManager().getDefaultDisplay().getMetrics(metric);
         mScreenWidth = metric.widthPixels;
         mScreenHeight = metric.heightPixels;
+        //获取status_bar_height资源的ID
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            //根据资源ID获取响应的尺寸值
+            mStatusBarHeight = getResources().getDimensionPixelSize(resourceId);
+        }
     }
     private void detachPresenter(){
         //presenter与activity解绑定

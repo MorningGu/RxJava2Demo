@@ -17,7 +17,7 @@ import java.util.List;
 
 import hero.rxjava.Config;
 import hero.rxjava.R;
-import hero.rxjava.mvp.model.gallery.Photo;
+import hero.rxjava.mvp.model.Photo;
 import hero.rxjava.utils.PixelUtil;
 import hero.rxjava.utils.ToastUtils;
 

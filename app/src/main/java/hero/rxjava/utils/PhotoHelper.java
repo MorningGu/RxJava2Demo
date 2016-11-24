@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import hero.rxjava.GApplication;
-import hero.rxjava.mvp.model.gallery.Photo;
-import hero.rxjava.mvp.model.gallery.PhotoDir;
+import hero.rxjava.mvp.model.Photo;
+import hero.rxjava.mvp.model.PhotoDir;
 
 /**
  * Created by hero on 2016/11/10 0010.

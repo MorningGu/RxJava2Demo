@@ -1,4 +1,4 @@
-package hero.rxjava.mvp.model.gallery;
+package hero.rxjava.mvp.model;
 
 import java.util.ArrayList;
 import java.util.List;

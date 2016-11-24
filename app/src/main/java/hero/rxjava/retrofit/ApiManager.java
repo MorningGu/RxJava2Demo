@@ -13,6 +13,7 @@ import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.functions.LongConsumer;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subscribers.ResourceSubscriber;
@@ -54,13 +55,13 @@ public enum ApiManager {
                             //.addInterceptor(signingInterceptor)//加密处理
                             .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
                             .readTimeout(DEFAULT_TIMEOUT,TimeUnit.MILLISECONDS)
-                            .addNetworkInterceptor(logging);
+                            .addInterceptor(logging);
 
                     iNetInterface = new Retrofit.Builder()
                             .client(okHttpClient.build())
                             .addConverterFactory(GsonConverterFactory.create())
                             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                            .baseUrl("url")
+                            .baseUrl("http://a.aaaaaabbbbbbbbbbbbbcccccccccccccc.com/")
                             .build().create(INetInterface.class);
                 }
             }
