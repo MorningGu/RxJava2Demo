@@ -64,7 +64,7 @@ public class ViewUtils {
     }
 
     /**
-     * 显示状态栏
+     * 显示状态栏 针对api14以上的版本
      * @param window
      */
     public static void showStatusBar(Window window){

@@ -108,8 +108,8 @@ public class GalleryDirPopupWindow extends PopupWindow{
 	}
 
 	@Override
-	public void showAsDropDown(View anchor,int x,int y,int gravity) {
-		super.showAsDropDown(anchor,x,y,gravity);
+	public void showAsDropDown(View anchor,int x,int y) {
+		super.showAsDropDown(anchor,x,y);
 		startShowAnimator();
 	}
 

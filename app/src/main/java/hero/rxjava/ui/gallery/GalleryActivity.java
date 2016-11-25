@@ -252,7 +252,7 @@ public class GalleryActivity extends BaseActivity<IGalleryActivityView,GalleryAc
         //在android7.0的手机上，弹出的效果不是微信的效果，
         // 位移不起作用，因为在7.0中popupwindow的宽和高如果过大，
         // 弹出的PopupWindow会覆盖当前的视窗而覆盖整个手机屏幕
-        dirPopupWindow.showAsDropDown(findViewById(R.id.layout_bottom),0,-(gv_photos.getHeight()+PixelUtil.dp2px(48)), Gravity.NO_GRAVITY);
+        dirPopupWindow.showAsDropDown(findViewById(R.id.layout_bottom),0,-(gv_photos.getHeight()+PixelUtil.dp2px(48)));
 //        dirPopupWindow.showAtLocation(gv_photos,Gravity.NO_GRAVITY,0,toolbar.getHeight()+mStatusBarHeight);//toolbar的高度和通知栏高度
     }
     /**
