@@ -59,7 +59,7 @@ public class GalleryPreviewActivity extends BaseActivity<IGalleryPreviewActivity
         setContentView(R.layout.activity_gallery_preview);
         initActionBar();
         initData(savedInstanceState);
-        mPresenter.initView(isPreview,dirPosition);
+        mPresenter.initView(isPreview,dirPosition,photoPosition);
         getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
             @Override
             public void onSystemUiVisibilityChange(int visibility) {
@@ -192,8 +192,7 @@ public class GalleryPreviewActivity extends BaseActivity<IGalleryPreviewActivity
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.iv_back:
-                setResult(false);
-                finish();
+                onBackPressed();
                 break;
             case R.id.ll_ok:
                //进入下一页

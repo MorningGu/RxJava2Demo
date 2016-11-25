@@ -55,7 +55,7 @@
                     android:textSize="13dp"
                     />
                 <TextView
-                    android:id="@+id/tv_select_count"
+                    android:id="@+id/tv_count_top"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -104,7 +104,7 @@
                 android:textSize="15dp"
                 />
             <TextView
-                android:id="@+id/tv_count"
+                android:id="@+id/tv_count_bottom"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"

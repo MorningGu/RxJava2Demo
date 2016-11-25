@@ -89,6 +89,10 @@ public class MainActivityPresenter extends BasePresenter<IMainActivityView> {
     }
     public void doPhotos(){
         LogUtils.d("Hero_____MainActivity","选中了图片："+ PhotoFactory.getInstance().getSelectedPhotos().toArray());
+        IMainActivityView view = getView();
+        if(view!=null){
+            view.updateUI(PhotoFactory.getInstance().getSelectedPhotos().get(0).getPath());
+        }
     }
     public void destroyPhotos(){
         PhotoFactory.destroy();

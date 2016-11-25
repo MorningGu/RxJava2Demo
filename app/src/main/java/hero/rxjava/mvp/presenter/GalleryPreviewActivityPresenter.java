@@ -14,7 +14,7 @@ import hero.rxjava.utils.ToastUtils;
 
 public class GalleryPreviewActivityPresenter extends BasePresenter<IGalleryPreviewActivityView> {
     PhotoFactory factory = PhotoFactory.getInstance();
-    public void initView(boolean isPreview,int dirPosition){
+    public void initView(boolean isPreview,int dirPosition,int position){
         IGalleryPreviewActivityView view = getView();
         if(view!=null){
             List<Photo> photos;
@@ -24,6 +24,7 @@ public class GalleryPreviewActivityPresenter extends BasePresenter<IGalleryPrevi
                 photos = factory.getPhotoDirs().get(dirPosition).getPhotos();
             }
             view.initUI(photos);
+            view.changeState(position,factory.getSelectedPhotos().size());
         }
     }
     /**

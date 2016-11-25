@@ -7,9 +7,9 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -43,8 +43,11 @@ public class GalleryActivity extends BaseActivity<IGalleryActivityView,GalleryAc
 
     private GridView gv_photos;
     private TextView tv_dir_choose;
-    private TextView tv_count;
+    private TextView tv_count_bottom;
+    private TextView tv_count_top;
+    private ImageView iv_back;
     private LinearLayout layout_show_big;
+    private LinearLayout ll_ok;
     private GalleryDirPopupWindow dirPopupWindow;
     private GalleryDirsContainer layout_dirs;
     Toolbar toolbar;
@@ -78,12 +81,28 @@ public class GalleryActivity extends BaseActivity<IGalleryActivityView,GalleryAc
         setSupportActionBar(toolbar);
     }
     private void initView(){
+        ll_ok = (LinearLayout)findViewById(R.id.ll_ok);
+        iv_back = (ImageView)findViewById(R.id.iv_back);
         gv_photos = (GridView)findViewById(R.id.gv_photos);
         tv_dir_choose = (TextView) findViewById(R.id.tv_dir_choose);
-        tv_count = (TextView) findViewById(R.id.tv_count);
+        tv_count_bottom = (TextView) findViewById(R.id.tv_count_bottom);
+        tv_count_top = (TextView) findViewById(R.id.tv_count_top);
         layout_show_big = (LinearLayout) findViewById(R.id.layout_show_big);
         layout_dirs = (GalleryDirsContainer)findViewById(R.id.layout_dirs);
-
+        ll_ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //向上一级提交本页选中的图片
+                setResult(RESULT_OK);
+                finish();
+            }
+        });
+        iv_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
         tv_dir_choose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -174,8 +193,7 @@ public class GalleryActivity extends BaseActivity<IGalleryActivityView,GalleryAc
     public void onBackPressed() {
         //清空内存缓存
         Glide.get(this).clearMemory();
-        //这里只是做一个提交的例子，实际的时候这里应该是一个cancel
-        setResult(RESULT_OK);
+        setResult(RESULT_CANCELED);
         super.onBackPressed();
     }
     @Override
@@ -207,11 +225,10 @@ public class GalleryActivity extends BaseActivity<IGalleryActivityView,GalleryAc
                     break;
                 }
             }
-        }else{
-            //数据可能有变动，更新ui
-            mAdapter.notifyDataSetChanged();
-            mPresenter.updateState();
         }
+        //数据可能有变动，更新ui
+        mAdapter.notifyDataSetChanged();
+        mPresenter.updateState();
     }
 
     /**
@@ -255,10 +272,13 @@ public class GalleryActivity extends BaseActivity<IGalleryActivityView,GalleryAc
     @Override
     public void updateState(int count, int max) {
         if(count==0){
-            tv_count.setVisibility(View.GONE);
+            tv_count_bottom.setVisibility(View.GONE);
+            ll_ok.setClickable(false);
         }else{
-            tv_count.setText(getString(R.string.gallery_count, count));
-            tv_count.setVisibility(View.VISIBLE);
+            tv_count_bottom.setText(getString(R.string.gallery_count, count));
+            tv_count_top.setText(getString(R.string.gallery_count_max,count,max));
+            tv_count_bottom.setVisibility(View.VISIBLE);
+            ll_ok.setClickable(true);
         }
     }
     /**
