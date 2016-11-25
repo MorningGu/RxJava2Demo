@@ -34,10 +34,10 @@ public class GalleryDirPopupWindow extends PopupWindow{
 	private List<PhotoDir> mPhotoDirs;
 	//动画相关
 	AnimatorSet animatorSet ;
-	ObjectAnimator mPlaceViewShowAnimation;
-	ObjectAnimator mPlaceViewDismissAnimation;
-	ObjectAnimator mListViewShowAnimation;
-	ObjectAnimator mListViewDismissAnimation;
+	ObjectAnimator mPlaceViewShowAnimator;
+	ObjectAnimator mPlaceViewDismissAnimator;
+	ObjectAnimator mListViewShowAnimator;
+	ObjectAnimator mListViewDismissAnimator;
 
 	//是否正在消失，为了解决快速的两次点击出现的问题
 	boolean isDismissing = false;
@@ -70,6 +70,7 @@ public class GalleryDirPopupWindow extends PopupWindow{
 		//this.setAnimationStyle(R.style.pop_anim_style);
 		this.setOutsideTouchable(true);
 		initViews();
+		initAnimator();
 	}
 
 	public void initViews() {
@@ -110,7 +111,6 @@ public class GalleryDirPopupWindow extends PopupWindow{
 	public void showAsDropDown(View anchor,int x,int y,int gravity) {
 		super.showAsDropDown(anchor,x,y,gravity);
 		startShowAnimator();
-		initShowAnimation();
 	}
 
 	@Override
@@ -122,14 +122,14 @@ public class GalleryDirPopupWindow extends PopupWindow{
 	/**
 	 * 初始化动画
 	 */
-	private void initShowAnimation(){
-		if(mPlaceViewShowAnimation==null){
+	private void initAnimator(){
+		if(mPlaceViewShowAnimator==null){
 			//占位控件的出场动画和退场动画
-			mPlaceViewShowAnimation = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
-			mPlaceViewShowAnimation.setInterpolator(new AccelerateInterpolator  ());
-			mPlaceViewDismissAnimation = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
-			mPlaceViewDismissAnimation.setInterpolator(new AccelerateInterpolator  ());
-			mPlaceViewDismissAnimation.addListener(new Animator.AnimatorListener() {
+			mPlaceViewShowAnimator = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
+			mPlaceViewShowAnimator.setInterpolator(new AccelerateInterpolator  ());
+			mPlaceViewDismissAnimator = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
+			mPlaceViewDismissAnimator.setInterpolator(new AccelerateInterpolator  ());
+			mPlaceViewDismissAnimator.addListener(new Animator.AnimatorListener() {
 				@Override
 				public void onAnimationStart(Animator animation) {
 
@@ -156,10 +156,10 @@ public class GalleryDirPopupWindow extends PopupWindow{
 			});
 			ViewUtils.measureView(lv_dirs);
 			//ListView的出场动画和退场动画
-			mListViewShowAnimation = ObjectAnimator.ofFloat(lv_dirs, "translationY", lv_dirs.getHeight(), 0f);
-			mListViewShowAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
-			mListViewDismissAnimation =ObjectAnimator.ofFloat(lv_dirs, "translationY", 0f, lv_dirs.getHeight());
-			mListViewDismissAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
+			mListViewShowAnimator = ObjectAnimator.ofFloat(lv_dirs, "translationY", lv_dirs.getMeasuredHeight(), 0f);
+			mListViewShowAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+			mListViewDismissAnimator =ObjectAnimator.ofFloat(lv_dirs, "translationY", 0f, lv_dirs.getMeasuredHeight());
+			mListViewDismissAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
 		}
 	}
 
@@ -171,7 +171,7 @@ public class GalleryDirPopupWindow extends PopupWindow{
 			animatorSet.cancel();
 		}
 		animatorSet = new AnimatorSet();
-		animatorSet.play(mListViewShowAnimation).with(mPlaceViewShowAnimation);
+		animatorSet.play(mListViewShowAnimator).with(mPlaceViewShowAnimator);
 		animatorSet.setDuration(mDuration);
 		animatorSet.start();
 		mConvertView.setVisibility(View.VISIBLE);
@@ -185,7 +185,7 @@ public class GalleryDirPopupWindow extends PopupWindow{
 			animatorSet.cancel();
 		}
 		animatorSet = new AnimatorSet();
-		animatorSet.play(mListViewDismissAnimation).with(mPlaceViewDismissAnimation);
+		animatorSet.play(mListViewDismissAnimator).with(mPlaceViewDismissAnimator);
 		animatorSet.setDuration(mDuration);
 		animatorSet.start();
 	}
