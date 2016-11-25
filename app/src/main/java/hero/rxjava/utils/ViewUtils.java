@@ -4,6 +4,7 @@ import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 
 /**
  * Created by hero on 2016/11/25 0025.
@@ -39,22 +40,34 @@ public class ViewUtils {
         }
         v.measure(width, height);
     }
+
+    /**
+     * 隐藏状态栏 不更改布局 针对api14以上的版本
+     * @param window
+     */
     public static void hideStatusBar(Window window){
-        //保持布局状态
-        int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE|
+        int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE| //保持布局状态
 //                //布局位于状态栏下方
 //                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION|
-                //全屏
+//                //全屏
                 View.SYSTEM_UI_FLAG_FULLSCREEN;
 //                //隐藏导航栏
 //                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|
 //                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-
-        if (Build.VERSION.SDK_INT>=19){
-            uiOptions |= 0x00001000;
-        }else{
-            uiOptions |= View.SYSTEM_UI_FLAG_LOW_PROFILE;
-        }
+            //对导航栏的显示的弱化
+//        if (Build.VERSION.SDK_INT>=19){
+//            uiOptions |= 0x00001000;
+//        }else{
+//            uiOptions |= View.SYSTEM_UI_FLAG_LOW_PROFILE;
+//        }
         window.getDecorView().setSystemUiVisibility(uiOptions);
+    }
+
+    /**
+     * 显示状态栏
+     * @param window
+     */
+    public static void showStatusBar(Window window){
+        window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
     }
 }

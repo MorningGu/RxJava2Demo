@@ -4,12 +4,10 @@
     android:layout_height="match_parent"
     android:background="#000000"
     >
-
     <hero.rxjava.ui.gallery.HackyViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"
         android:layout_gravity="center"
         />
     <android.support.v7.widget.Toolbar
@@ -108,7 +106,5 @@
 
                 />
         </LinearLayout>
-
-
     </RelativeLayout>
 </RelativeLayout>

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -229,11 +230,10 @@ public class GalleryPreviewActivity extends BaseActivity<IGalleryPreviewActivity
             @Override
             public void onViewTap() {
                 if(toolbar.getVisibility()==View.GONE){
-                    getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+                    ViewUtils.showStatusBar(getWindow());
                 }else{
                     hideBar();
                 }
-
             }
         });
         mPager.setAdapter(mAdapter);
