@@ -24,6 +24,7 @@ import java.util.List;
 import hero.rxjava.R;
 import hero.rxjava.mvp.model.PhotoDir;
 import hero.rxjava.mvp.model.factory.PhotoFactory;
+import hero.rxjava.utils.ViewUtils;
 
 public class GalleryDirPopupWindow extends PopupWindow{
 	private View mConvertView;
@@ -153,7 +154,7 @@ public class GalleryDirPopupWindow extends PopupWindow{
 
 				}
 			});
-			measureView(lv_dirs);
+			ViewUtils.measureView(lv_dirs);
 			//ListView的出场动画和退场动画
 			mListViewShowAnimation = ObjectAnimator.ofFloat(lv_dirs, "translationY", lv_dirs.getHeight(), 0f);
 			mListViewShowAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -161,35 +162,7 @@ public class GalleryDirPopupWindow extends PopupWindow{
 			mListViewDismissAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
 		}
 	}
-	/**
-	 * 目前该方法只支持预计算宽高设置为准确值或wrap_content的情况，
-	 * 不支持match_parent的情况，因为view的父view还未预计算出宽高
-	 * @param v 要预计算的view
-	 */
-	private void measureView(View v) {
-		ViewGroup.LayoutParams lp = v.getLayoutParams();
-		if (lp == null) {
-			return;
-		}
-		int width;
-		int height;
-		if (lp.width > 0) {
-			// xml文件中设置了该view的准确宽度值，例如android:layout_width="150dp"
-			width = View.MeasureSpec.makeMeasureSpec(lp.width, View.MeasureSpec.EXACTLY);
-		} else {
-			// xml文件中使用wrap_content设定该view宽度，例如android:layout_width="wrap_content"
-			width = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-		}
 
-		if (lp.height > 0) {
-			// xml文件中设置了该view的准确高度值，例如android:layout_height="50dp"
-			height = View.MeasureSpec.makeMeasureSpec(lp.height, View.MeasureSpec.EXACTLY);
-		} else {
-			// xml文件中使用wrap_content设定该view高度，例如android:layout_height="wrap_content"
-			height = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-		}
-		v.measure(width, height);
-	}
 	/**
 	 * 入场动画，设置Visibility为VISIABLE
 	 */

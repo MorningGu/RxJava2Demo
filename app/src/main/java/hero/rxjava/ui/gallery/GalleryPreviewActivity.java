@@ -1,5 +1,8 @@
 package hero.rxjava.ui.gallery;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +21,7 @@ import hero.rxjava.mvp.iview.IGalleryPreviewActivityView;
 import hero.rxjava.mvp.model.Photo;
 import hero.rxjava.mvp.presenter.GalleryPreviewActivityPresenter;
 import hero.rxjava.ui.base.BaseActivity;
+import hero.rxjava.utils.ViewUtils;
 
 public class GalleryPreviewActivity extends BaseActivity<IGalleryPreviewActivityView,GalleryPreviewActivityPresenter> implements View.OnClickListener, IGalleryPreviewActivityView {
     public static final String DIR_POSITION = "dirPosition";
@@ -37,16 +41,34 @@ public class GalleryPreviewActivity extends BaseActivity<IGalleryPreviewActivity
     private TextView tv_select_count,tv_index;
     private CheckBox cb_state;
     private HackyViewPager mPager;
+    private Toolbar toolbar;
 
     private PhotoViewPagerAdapter mAdapter;
+    //动画相关
+    AnimatorSet animatorSet ;
+    ObjectAnimator bottomShowAnimator;
+    ObjectAnimator bottomDismissAnimator;
+    ObjectAnimator titleShowAnimator;
+    ObjectAnimator titleDismissAnimator;
 
     @Override
     public void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
+        //不设背景则在状态栏隐藏之后会有留白
+        getWindow().setBackgroundDrawableResource(R.drawable.shape_gallery_statusbar);
         setContentView(R.layout.activity_gallery_preview);
         initActionBar();
         initData(savedInstanceState);
         mPresenter.initView(isPreview,dirPosition);
+        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+            @Override
+            public void onSystemUiVisibilityChange(int visibility) {
+                if(visibility==View.VISIBLE){
+                    showBar();
+                }
+            }
+        });
+        initAnimation();
     }
 
     @Override
@@ -54,7 +76,7 @@ public class GalleryPreviewActivity extends BaseActivity<IGalleryPreviewActivity
         return new GalleryPreviewActivityPresenter();
     }
     private void initActionBar(){
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
     /**
@@ -75,6 +97,66 @@ public class GalleryPreviewActivity extends BaseActivity<IGalleryPreviewActivity
         }
     }
 
+    private void initAnimation(){
+        ViewUtils.measureView(toolbar);
+        bottomShowAnimator = ObjectAnimator.ofFloat(rl_bottom, "alpha", 0f, 1f);
+        bottomDismissAnimator = ObjectAnimator.ofFloat(rl_bottom, "alpha", 1f, 0f);
+        titleShowAnimator = ObjectAnimator.ofFloat(toolbar, "translationY", -toolbar.getMeasuredHeight(), 0f);
+        titleDismissAnimator = ObjectAnimator.ofFloat(toolbar, "translationY", 0f, -toolbar.getMeasuredHeight());
+        titleDismissAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                toolbar.setVisibility(View.GONE);
+                rl_bottom.setVisibility(View.GONE);
+                ViewUtils.hideStatusBar(getWindow());
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                toolbar.setVisibility(View.GONE);
+                rl_bottom.setVisibility(View.GONE);
+                ViewUtils.hideStatusBar(getWindow());
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+    }
+
+    /**
+     * 显示bottombar和toolbar
+     */
+    private void showBar(){
+        if(animatorSet!=null && animatorSet.isRunning()){
+            animatorSet.cancel();
+        }
+        animatorSet = new AnimatorSet();
+        animatorSet.play(bottomShowAnimator).with(titleShowAnimator);
+        animatorSet.setDuration(300);
+        animatorSet.start();
+        toolbar.setVisibility(View.VISIBLE);
+        rl_bottom.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * 隐藏bottombar和toolbar
+     */
+    private void hideBar(){
+        if(animatorSet!=null && animatorSet.isRunning()){
+            animatorSet.cancel();
+        }
+        animatorSet = new AnimatorSet();
+        animatorSet.play(bottomDismissAnimator).with(titleDismissAnimator);
+        animatorSet.setDuration(300);
+        animatorSet.start();
+    }
     @Override
     public void onBackPressed() {
         setResult(false);
@@ -144,7 +226,17 @@ public class GalleryPreviewActivity extends BaseActivity<IGalleryPreviewActivity
         iv_back.setOnClickListener(this);
         ll_cb.setOnClickListener(this);
 
-        mAdapter = new PhotoViewPagerAdapter(this, photos);
+        mAdapter = new PhotoViewPagerAdapter(this, photos, new PhotoViewPagerAdapter.OnTapListener() {
+            @Override
+            public void onViewTap() {
+                if(toolbar.getVisibility()==View.GONE){
+                    getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+                }else{
+                    hideBar();
+                }
+
+            }
+        });
         mPager.setAdapter(mAdapter);
         mPager.setOffscreenPageLimit(5);
         // 更新下标
@@ -191,4 +283,5 @@ public class GalleryPreviewActivity extends BaseActivity<IGalleryPreviewActivity
         changeState(position);
         tv_select_count.setText(getString(R.string.gallery_count_max, size, Config.GALLERY_MAX));
     }
+
 }
